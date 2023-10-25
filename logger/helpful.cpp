@@ -1,6 +1,6 @@
 #include "helpful.h"
 
-using namespace haw::logger;
+using namespace kors::logger;
 
 static const std::string Colon("::");
 static const char ArgBegin('(');

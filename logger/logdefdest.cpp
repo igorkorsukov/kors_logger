@@ -13,7 +13,7 @@ namespace fs = std::experimental::filesystem;
 #error compiler must either support c++17
 #endif
 
-using namespace haw::logger;
+using namespace kors::logger;
 
 MemLogDest::MemLogDest(const LogLayout& l)
     : LogDest(l)

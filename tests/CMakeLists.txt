@@ -1,26 +1,33 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(haw_logger LANGUAGES CXX)
+project(logger_example LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5Core)
+option(KORS_LOGGER_QT_SUPPORT "Enabling Qt support" ON)
 
-add_definitions(-DHAW_LOGGER_QT_SUPPORT)
+if (KORS_LOGGER_QT_SUPPORT)
+    find_package(Qt5Core)
+    add_definitions(-DKORS_LOGGER_QT_SUPPORT)
+endif()
+
 include(${CMAKE_CURRENT_LIST_DIR}/../logger/logger.cmake)
 
 include_directories(${HAW_LOGGER_INC})
 
-add_executable(haw_logger
+add_executable(${PROJECT_NAME}
     main.cpp
     ${HAW_LOGGER_SRC}
 )
 
-target_link_libraries(haw_logger
+target_link_libraries(${PROJECT_NAME}
     stdc++fs
     pthread
-    Qt${QT_VERSION_MAJOR}::Core
 )
+
+if (KORS_LOGGER_QT_SUPPORT)
+    target_link_libraries(${PROJECT_NAME} Qt${QT_VERSION_MAJOR}::Core)
+endif()

@@ -1,12 +1,12 @@
-#ifndef HAW_DEFLOGDEST_H
-#define HAW_DEFLOGDEST_H
+#ifndef KORS_DEFLOGDEST_H
+#define KORS_DEFLOGDEST_H
 
 #include <fstream>
 #include <ctime>
 
 #include "logger.h"
 
-namespace haw::logger {
+namespace kors::logger {
 class MemLogDest : public LogDest
 {
 public:
@@ -51,4 +51,4 @@ public:
 };
 }
 
-#endif // HAW_DEFLOGDEST_H
+#endif // KORS_DEFLOGDEST_H

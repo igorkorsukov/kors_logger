@@ -1,14 +1,13 @@
-#ifndef HAW_LOGSTREAM_H
-#define HAW_LOGSTREAM_H
+#ifndef KORS_LOGSTREAM_H
+#define KORS_LOGSTREAM_H
 
 #include <sstream>
 
-#ifdef HAW_LOGGER_QT_SUPPORT
+#ifdef KORS_LOGGER_QT_SUPPORT
 #include <QDebug>
 #endif
 
-namespace haw::logger {
-
+namespace kors::logger {
 class Stream
 {
 public:
@@ -32,7 +31,7 @@ public:
     inline Stream& operator<<(const std::string& t) { m_ss << t; return *this; }
     inline Stream& operator<<(const std::thread::id& t) { m_ss << t; return *this; }
 
-#ifdef HAW_LOGGER_QT_SUPPORT
+#ifdef KORS_LOGGER_QT_SUPPORT
     inline Stream& operator<<(qint64 t) { qt_to_ss(t); return *this; }
     inline Stream& operator<<(quint64 t) { qt_to_ss(t); return *this; }
     inline Stream& operator<<(QChar t) { qt_to_ss(t); return *this; }
@@ -47,7 +46,7 @@ public:
 
 private:
 
-#ifdef HAW_LOGGER_QT_SUPPORT
+#ifdef KORS_LOGGER_QT_SUPPORT
     template<typename T>
     inline void qt_to_ss(const T& t)
     {
@@ -61,7 +60,6 @@ private:
 
     std::stringstream m_ss;
 };
-
 }
 
-#endif //HAW_LOGSTREAM_H
+#endif //KORS_LOGSTREAM_H

@@ -8,7 +8,7 @@
 #include "logdefdest.h"
 #include "helpful.h"
 
-using namespace haw::logger;
+using namespace kors::logger;
 
 // Layout ---------------------------------
 
@@ -274,7 +274,7 @@ Logger::Logger()
 
 Logger::~Logger()
 {
-#ifdef HAW_LOGGER_QT_SUPPORT
+#ifdef KORS_LOGGER_QT_SUPPORT
     setIsCatchQtMsg(false);
 #endif
     clearDests();
@@ -293,7 +293,7 @@ void Logger::setupDefault()
     m_types.push_back(INFO);
     m_types.push_back(DEBUG);
 
-#ifdef HAW_LOGGER_QT_SUPPORT
+#ifdef KORS_LOGGER_QT_SUPPORT
     setIsCatchQtMsg(true);
 #endif
 }
@@ -371,7 +371,7 @@ void Logger::setType(const Type& type, bool enb)
     }
 }
 
-#ifdef HAW_LOGGER_QT_SUPPORT
+#ifdef KORS_LOGGER_QT_SUPPORT
 void Logger::logMsgHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& s)
 {
     if (type == QtDebugMsg && !Logger::instance()->isLevel(Debug)) {

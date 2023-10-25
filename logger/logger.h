@@ -1,5 +1,5 @@
-#ifndef HAW_LOGGER_H
-#define HAW_LOGGER_H
+#ifndef KORS_LOGGER_H
+#define KORS_LOGGER_H
 
 #include <string>
 #include <thread>
@@ -8,7 +8,7 @@
 
 #include "logstream.h"
 
-namespace haw::logger {
+namespace kors::logger {
 //! Types
 using Type = std::string;
 
@@ -151,7 +151,7 @@ public:
 
     bool isAsseptMsg(const Type& type) const;
 
-#ifdef HAW_LOGGER_QT_SUPPORT
+#ifdef KORS_LOGGER_QT_SUPPORT
     static void setIsCatchQtMsg(bool arg);
 #endif
 
@@ -165,7 +165,7 @@ private:
     Logger();
     ~Logger();
 
-#ifdef HAW_LOGGER_QT_SUPPORT
+#ifdef KORS_LOGGER_QT_SUPPORT
     static void logMsgHandler(QtMsgType, const QMessageLogContext&, const QString&);
     static Type qtMsgTypeToString(enum QtMsgType defType);
 #endif
@@ -197,4 +197,4 @@ private:
 };
 }
 
-#endif // HAW_LOGGER_H
+#endif // KORS_LOGGER_H

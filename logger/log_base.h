@@ -1,5 +1,5 @@
-#ifndef HAW_LOG_H
-#define HAW_LOG_H
+#ifndef KORS_LOG_H
+#define KORS_LOG_H
 
 #include "helpful.h"
 #include "logger.h"
@@ -13,8 +13,8 @@
 #endif
 
 //! Format
-#define CLASSNAME(sig) haw::logger::Helpful::className(sig)
-#define FUNCNAME(sig) haw::logger::Helpful::methodName(sig)
+#define CLASSNAME(sig) kors::logger::Helpful::className(sig)
+#define FUNCNAME(sig) kors::logger::Helpful::methodName(sig)
 
 //! Log
 
@@ -22,15 +22,15 @@
 #define LOG_TAG CLASSNAME(FUNC_INFO)
 #endif
 
-#define IF_LOGLEVEL(level)  if (haw::logger::Logger::instance()->isLevel(level))
+#define IF_LOGLEVEL(level)  if (kors::logger::Logger::instance()->isLevel(level))
 
-#define LOG_STREAM(type, tag) haw::logger::LogInput(type, tag).stream()
+#define LOG_STREAM(type, tag) kors::logger::LogInput(type, tag).stream()
 #define LOG(type, tag)  LOG_STREAM(type, tag) << FUNCNAME(FUNC_INFO) << ": "
 
-#define LOGE()      IF_LOGLEVEL(haw::logger::Normal) LOG(haw::logger::ERROR, LOG_TAG)
-#define LOGW()      IF_LOGLEVEL(haw::logger::Normal) LOG(haw::logger::WARN, LOG_TAG)
-#define LOGI()      IF_LOGLEVEL(haw::logger::Normal) LOG(haw::logger::INFO, LOG_TAG)
-#define LOGD()      IF_LOGLEVEL(haw::logger::Debug) LOG(haw::logger::DEBUG, LOG_TAG)
+#define LOGE()      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::ERROR, LOG_TAG)
+#define LOGW()      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::WARN, LOG_TAG)
+#define LOGI()      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::INFO, LOG_TAG)
+#define LOGD()      IF_LOGLEVEL(kors::logger::Debug) LOG(kors::logger::DEBUG, LOG_TAG)
 
 //! Helps
 #define DEPRECATED LOGD() << "This function deprecated!!";
@@ -40,4 +40,4 @@
 #define NOT_SUPPORTED LOGW() << "Not supported!!";
 #define NOT_SUPPORTED_USE(use) LOGW() << "Not supported!! Use:" << use;
 
-#endif // HAW_LOG_H
+#endif // KORS_LOG_H

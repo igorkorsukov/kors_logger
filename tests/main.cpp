@@ -3,9 +3,11 @@
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 
+#ifdef KORS_LOGGER_QT_SUPPORT
 #include <QDebug>
 #include <QString>
 #include <QPoint>
+#endif
 
 #include "logdefdest.h"
 #include "log_base.h"
@@ -17,7 +19,7 @@ public:
 
     void example()
     {
-        using namespace haw::logger;
+        using namespace kors::logger;
 
         Logger* logger = Logger::instance();
         logger->setupDefault();
@@ -32,9 +34,11 @@ public:
         std::thread t1([]() { LOGI() << "From thread"; });
         t1.join();
 
+#ifdef KORS_LOGGER_QT_SUPPORT
         qCritical() << "This is qCritical";
         qWarning() << "This is qWarning";
         qDebug() << "This is qDebug"; //! NOTE Default not output
+#endif
 
         LOGI() << QString("This is QString");
 
@@ -58,10 +62,12 @@ public:
         */
 
         //! Set log level
-        logger->setLevel(haw::logger::Debug);
+        logger->setLevel(kors::logger::Debug);
 
         LOGD() << "This is debug";
+#ifdef KORS_LOGGER_QT_SUPPORT
         qDebug() << "This is qDebug";
+#endif
 
         /*
         15:34:54.257 | DEBUG | main_thread     | MYTAG      | example: This is debug
@@ -92,7 +98,7 @@ public:
          */
 
         //! Level
-        logger->setLevel(haw::logger::Debug);
+        logger->setLevel(kors::logger::Debug);
 
         //! Catch Qt message
         logger->setIsCatchQtMsg(true);
@@ -101,7 +107,7 @@ public:
         logger->setType("MYTRACE", true);
 
         //! Add to log.h
-        #define MYTRACE() IF_LOGLEVEL(haw::logger::Debug) LOG("MYTRACE", LOG_TAG)
+        #define MYTRACE() IF_LOGLEVEL(kors::logger::Debug) LOG("MYTRACE", LOG_TAG)
 
         MYTRACE() << "This my trace";
 
