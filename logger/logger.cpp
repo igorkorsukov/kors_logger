@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2020 Igor Korsukov
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include "logger.h"
 
 #include <chrono>
@@ -12,21 +35,30 @@ using namespace kors::logger;
 
 // Layout ---------------------------------
 
-static const std::string DATETIME_PATTERN("${datetime}");
-static const std::string TIME_PATTERN("${time}");
-static const std::string TYPE_PATTERN("${type}");
-static const std::string TAG_PATTERN("${tag}");
-static const std::string THREAD_PATTERN("${thread}");
-static const std::string MESSAGE_PATTERN("${message}");
+static constexpr Ascii DATETIME_PATTERN("${datetime}");
+static constexpr Ascii TIME_PATTERN("${time}");
+static constexpr Ascii TYPE_PATTERN("${type}");
+static constexpr Ascii TAG_PATTERN("${tag}");
+static constexpr Ascii THREAD_PATTERN("${thread}");
+static constexpr Ascii MESSAGE_PATTERN("${message}");
 
-static const char ZERO('0');
-static const char COLON(':');
-static const char DOT('.');
-static const char HYPEN('-');
-static const char T('T');
-static const char SPACE(' ');
+static constexpr char ZERO('0');
+static constexpr char COLON(':');
+static constexpr char DOT('.');
+static constexpr char HYPEN('-');
+static constexpr char T('T');
+static constexpr char SPACE(' ');
 
-static const std::string MAIN_THREAD("main_thread");
+static constexpr Ascii MAIN_THREAD("main_thread");
+
+static std::string leftJustified(const char* in, size_t width)
+{
+    std::string out(in);
+    if (width > out.size()) {
+        out.resize(width, ' ');
+    }
+    return out;
+}
 
 static std::string leftJustified(const std::string& in, size_t width)
 {
@@ -72,9 +104,9 @@ LogLayout::~LogLayout()
 {
 }
 
-std::vector<LogLayout::Pattern> LogLayout::patterns(const std::string& format)
+std::vector<LogLayout::PatternData> LogLayout::patterns(const std::string& format)
 {
-    std::vector<std::string> ps = {
+    static const std::vector<Ascii> ps = {
         DATETIME_PATTERN,
         TIME_PATTERN,
         TYPE_PATTERN,
@@ -83,27 +115,28 @@ std::vector<LogLayout::Pattern> LogLayout::patterns(const std::string& format)
         MESSAGE_PATTERN
     };
 
-    std::vector<LogLayout::Pattern> patterns;
-    for (const std::string& pstr : ps) {
-        Pattern p = parcePattern(format, pstr);
+    std::vector<LogLayout::PatternData> patterns;
+    for (const Ascii& pstr : ps) {
+        PatternData p = parcePattern(format, pstr);
         if (p.index > -1) {
             patterns.push_back(std::move(p));
         }
     }
 
-    std::sort(patterns.begin(), patterns.end(), [](const LogLayout::Pattern& f, const LogLayout::Pattern& s) {
+    std::sort(patterns.begin(), patterns.end(), [](const LogLayout::PatternData& f, const LogLayout::PatternData& s) {
         return f.index < s.index;
     });
 
     return patterns;
 }
 
-LogLayout::Pattern LogLayout::parcePattern(const std::string& format, const std::string& pattern)
+LogLayout::PatternData LogLayout::parcePattern(const std::string& format, const Ascii& pattern)
 {
-    Pattern p;
+    PatternData p;
     p.pattern = pattern;
 
-    std::string beginPattern(pattern.substr(0, pattern.size() - 1));
+    std::string patternStr(pattern.c_str());
+    std::string beginPattern(patternStr.substr(0, patternStr.size() - 1));
     std::string::size_type beginPatternIndex = format.find(beginPattern);
     if (beginPatternIndex != std::string::npos) {
         p.index = beginPatternIndex;
@@ -150,20 +183,20 @@ std::string LogLayout::output(const LogMsg& logMsg) const
 {
     std::string str;
     str.reserve(100);
-    for (const Pattern& p : m_patterns) {
+    for (const PatternData& p : m_patterns) {
         str.append(p.beforeStr).append(formatPattern(logMsg, p));
     }
     return str;
 }
 
-std::string LogLayout::formatPattern(const LogMsg& logMsg, const Pattern& p) const
+std::string LogLayout::formatPattern(const LogMsg& logMsg, const PatternData& p) const
 {
     if (DATETIME_PATTERN == p.pattern) {
         return leftJustified(formatDateTime(logMsg.datetime), p.minWidth);
     } else if (TIME_PATTERN == p.pattern) {
         return leftJustified(formatTime(logMsg.datetime.time), p.minWidth);
     } else if (TYPE_PATTERN == p.pattern) {
-        return leftJustified(logMsg.type, p.minWidth);
+        return leftJustified(logMsg.type.c_str(), p.minWidth);
     } else if (TAG_PATTERN == p.pattern) {
         return leftJustified(logMsg.tag, p.minWidth);
     } else if (THREAD_PATTERN == p.pattern) {
@@ -172,7 +205,7 @@ std::string LogLayout::formatPattern(const LogMsg& logMsg, const Pattern& p) con
         return leftJustified(logMsg.message, p.minWidth);
     }
 
-    return p.pattern;
+    return std::string(p.pattern.c_str());
 }
 
 std::string LogLayout::formatDateTime(const DateTime& dt) const
@@ -240,7 +273,8 @@ std::string LogLayout::formatTime(const Time& t) const
 std::string LogLayout::formatThread(const std::thread::id& thID) const
 {
     if (m_mainThread == thID) {
-        return MAIN_THREAD;
+        static const std::string MAIN_THREAD_STR(MAIN_THREAD.c_str());
+        return MAIN_THREAD_STR;
     }
     std::ostringstream ss;
     ss << thID;

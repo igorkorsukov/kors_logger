@@ -1,7 +1,31 @@
 #ifndef KORS_LOGGER_H
+/*
+MIT License
+
+Copyright (c) 2020 Igor Korsukov
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #define KORS_LOGGER_H
 
 #include <string>
+#include <cstring>
 #include <thread>
 #include <vector>
 #include <mutex>
@@ -10,7 +34,28 @@
 
 namespace kors::logger {
 //! Types
-using Type = std::string;
+struct Ascii
+{
+    constexpr Ascii(const char* n)
+        : m_size(n ? std::char_traits<char>::length(n) : 0), m_data(n) {}
+
+    inline bool operator ==(const Ascii& s) const { return m_size == s.m_size && std::memcmp(m_data, s.m_data, m_size) == 0; }
+    inline bool operator !=(const Ascii& s) const { return !this->operator==(s); }
+
+    size_t size() const { return m_size; }
+    const char* c_str() const { return m_data; }
+
+private:
+    size_t m_size = 0;
+    const char* m_data = nullptr;
+};
+
+using Type = Ascii;
+
+static constexpr Type ERROR = "ERROR";
+static constexpr Type WARN = "WARN";
+static constexpr Type INFO = "INFO";
+static constexpr Type DEBUG = "DEBUG";
 
 enum Level {
     Off     = 0,
@@ -19,22 +64,13 @@ enum Level {
     Full    = 3
 };
 
-static const Type ERROR = "ERROR";
-static const Type WARN = "WARN";
-static const Type INFO = "INFO";
-static const Type DEBUG = "DEBUG";
-
 struct Date
 {
     int day = 0;
     int mon = 0;
     int year = 0;
 
-    inline bool operator ==(const Date& d) const
-    {
-        return day == d.day && mon == d.mon && year == d.year;
-    }
-
+    inline bool operator ==(const Date& d) const { return day == d.day && mon == d.mon && year == d.year; }
     inline bool operator !=(const Date& d) const { return !this->operator ==(d); }
 };
 
@@ -83,31 +119,31 @@ public:
     explicit LogLayout(const std::string& format);
     virtual ~LogLayout();
 
-    struct Pattern {
-        std::string pattern;
+    struct PatternData {
+        PatternData() = default;
+        Ascii pattern = nullptr;
         std::string beforeStr;
         int index = -1;
         int count = 0;
         size_t minWidth = 0;
-        Pattern() = default;
     };
 
     std::string format() const;
 
     virtual std::string output(const LogMsg& logMsg) const;
 
-    virtual std::string formatPattern(const LogMsg& logMsg, const Pattern& p) const;
+    virtual std::string formatPattern(const LogMsg& logMsg, const PatternData& p) const;
     virtual std::string formatDateTime(const DateTime& datetime) const;
     virtual std::string formatDate(const Date& date) const;
     virtual std::string formatTime(const Time& time) const;
     virtual std::string formatThread(const std::thread::id& thID) const;
 
-    static Pattern parcePattern(const std::string& format, const std::string& pattern);
-    static std::vector<Pattern> patterns(const std::string& format);
+    static PatternData parcePattern(const std::string& format, const Ascii& pattern);
+    static std::vector<PatternData> patterns(const std::string& format);
 
 private:
     std::string m_format;
-    std::vector<Pattern> m_patterns;
+    std::vector<PatternData> m_patterns;
     std::thread::id m_mainThread;
 };
 

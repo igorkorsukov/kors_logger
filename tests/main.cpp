@@ -38,9 +38,9 @@ public:
         qCritical() << "This is qCritical";
         qWarning() << "This is qWarning";
         qDebug() << "This is qDebug"; //! NOTE Default not output
-#endif
 
         LOGI() << QString("This is QString");
+#endif
 
         /*
         15:21:53.454 | ERROR | main_thread     | Example    | example: This is error
