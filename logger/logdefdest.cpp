@@ -71,23 +71,23 @@ void FileLogDest::rotate()
     }
 
     auto formatDate = [](const Date& d) {
-                          std::string str;
-                          str.reserve(10);
+        std::string str;
+        str.reserve(10);
 
-                          str.append(std::to_string(d.year + 1900));
+        str.append(std::to_string(d.year + 1900));
 
-                          if (d.mon < 11) {
-                              str.push_back('0');
-                          }
-                          str.append(std::to_string(d.mon + 1));
+        if (d.mon < 11) {
+            str.push_back('0');
+        }
+        str.append(std::to_string(d.mon + 1));
 
-                          if (d.day < 10) {
-                              str.push_back('0');
-                          }
-                          str.append(std::to_string(d.day));
+        if (d.day < 10) {
+            str.push_back('0');
+        }
+        str.append(std::to_string(d.day));
 
-                          return str;
-                      };
+        return str;
+    };
 
     m_rotateDate = DateTime::now().date;
     std::string dateStr = formatDate(m_rotateDate);
@@ -122,5 +122,5 @@ std::string ConsoleLogDest::name() const
 
 void ConsoleLogDest::write(const LogMsg& logMsg)
 {
-    std::clog << m_layout.output(logMsg) << std::endl;
+    std::cout << m_layout.output(logMsg) << std::endl;
 }

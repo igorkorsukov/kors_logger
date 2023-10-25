@@ -128,7 +128,7 @@ public:
 
 int main(int argc, char* argv[])
 {
-    std::clog << "Hello World, I am Logger\n";
+    std::cout << "Hello World, I am Logger\n";
 
     Example t;
     t.example();
