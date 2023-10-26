@@ -411,20 +411,21 @@ void Logger::logMsgHandler(QtMsgType type, const QMessageLogContext& ctx, const 
         return;
     }
 
-    LogMsg logMsg(qtMsgTypeToString(type), funcinfo::classFuncBySig(ctx.function), s.toStdString());
+    auto qtMsgTypeToLogType = [](QtMsgType qType) -> std::pair<Type, Color> {
+        switch (qType) {
+        case QtDebugMsg: return { DEBUG, Color::None };
+        case QtWarningMsg: return { WARN, Color::Yellow };
+        case QtCriticalMsg: return { ERROR, Color::Red };
+        case QtFatalMsg: return { ERROR, Color::Red };
+        default: return { INFO, Color::Green };
+        }
+    };
+
+    std::pair<Type, Color> t = qtMsgTypeToLogType(type);
+
+    LogMsg logMsg(t.first, funcinfo::classFuncBySig(ctx.function),  t.second, s.toStdString());
 
     Logger::instance()->write(logMsg);
-}
-
-Type Logger::qtMsgTypeToString(enum QtMsgType defType)
-{
-    switch (defType) {
-    case QtDebugMsg: return DEBUG;
-    case QtWarningMsg: return WARN;
-    case QtCriticalMsg: return ERROR;
-    case QtFatalMsg: return ERROR;
-    default: return INFO;
-    }
 }
 
 void Logger::setIsCatchQtMsg(bool arg)

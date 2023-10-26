@@ -36,13 +36,20 @@ SOFTWARE.
 
 #define IF_LOGLEVEL(level)  if (kors::logger::Logger::instance()->isLevel(level))
 
-#define LOG_STREAM(type, tag) kors::logger::LogInput(type, tag).stream
-#define LOG(type, tag)  LOG_STREAM(type, tag)
+#define LOG_STREAM(type, tag, color) kors::logger::LogInput(type, tag, color).stream
 
-#define LOGE      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::ERROR, LOG_TAG)
-#define LOGW      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::WARN, LOG_TAG)
-#define LOGI      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::INFO, LOG_TAG)
-#define LOGD      IF_LOGLEVEL(kors::logger::Debug) LOG(kors::logger::DEBUG, LOG_TAG)
+#define LOGE_T(tag) IF_LOGLEVEL(kors::logger::Normal) LOG_STREAM(kors::logger::ERROR, tag, kors::logger::Color::Red)
+#define LOGW_T(tag) IF_LOGLEVEL(kors::logger::Normal) LOG_STREAM(kors::logger::WARN, tag, kors::logger::Color::Yellow)
+#define LOGI_T(tag) IF_LOGLEVEL(kors::logger::Normal) LOG_STREAM(kors::logger::INFO, tag, kors::logger::Color::Green)
+#define LOGD_T(tag) IF_LOGLEVEL(kors::logger::Debug) LOG_STREAM(kors::logger::DEBUG, tag, kors::logger::Color::None)
+#define LOGDA_T(tag) IF_LOGLEVEL(kors::logger::Debug) LOG_STREAM(kors::logger::DEBUG, tag, kors::logger::Color::Cyan)
+
+#define LOGE LOGE_T(LOG_TAG)
+#define LOGW LOGW_T(LOG_TAG)
+#define LOGI LOGI_T(LOG_TAG)
+#define LOGD LOGD_T(LOG_TAG)
+#define LOGDA LOGDA_T(LOG_TAG)      // active debug
+#define LOGN if (0) LOGD_T(LOG_TAG) // compiling, but no output
 
 //! Helps
 #define DEPRECATED LOGD() << "This function deprecated!!";

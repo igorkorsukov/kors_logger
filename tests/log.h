@@ -5,6 +5,6 @@
 
 // custom macros
 
-#define MYTRACE IF_LOGLEVEL(kors::logger::Debug) LOG("MYTRACE", LOG_TAG)
+#define MYTRACE IF_LOGLEVEL(kors::logger::Debug) LOG_STREAM("MYTRACE", LOG_TAG, kors::logger::Color::Magenta)
 
 #endif // EXAMPLE_LOG_H

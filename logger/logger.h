@@ -54,6 +54,18 @@ enum Level {
     Full    = 3
 };
 
+enum class Color {
+    None,
+    Black,
+    Red,
+    Green,
+    Yellow,
+    Blue,
+    Magenta,
+    Cyan,
+    White
+};
+
 struct Date
 {
     int day = 0;
@@ -87,19 +99,18 @@ public:
 
     LogMsg() = default;
 
-    LogMsg(const Type& l, const std::string_view& t)
-        : type(l), tag(t), datetime(DateTime::now()),
-        thread(std::this_thread::get_id()) {}
+    LogMsg(const Type& l, const std::string_view& t, const Color& c)
+        : type(l), tag(t), datetime(DateTime::now()), thread(std::this_thread::get_id()), color(c) {}
 
-    LogMsg(const Type& l, const std::string_view& t, const std::string& m)
-        : type(l), tag(t), message(m), datetime(DateTime::now()),
-        thread(std::this_thread::get_id()) {}
+    LogMsg(const Type& l, const std::string_view& t, const Color& c, const std::string& m)
+        : type(l), tag(t), message(m), datetime(DateTime::now()), thread(std::this_thread::get_id()), color(c) {}
 
     Type type;
     std::string_view tag;
     std::string message;
     DateTime datetime;
     std::thread::id thread;
+    Color color = Color::None;
 };
 
 //! Layout ---------------------------------
@@ -193,7 +204,6 @@ private:
 
 #ifdef KORS_LOGGER_QT_SUPPORT
     static void logMsgHandler(QtMsgType, const QMessageLogContext&, const QString&);
-    static Type qtMsgTypeToString(enum QtMsgType defType);
 #endif
 
     Level m_level = Normal;
@@ -206,8 +216,8 @@ private:
 class LogInput
 {
 public:
-    explicit LogInput(const Type& type, const std::string_view& tag)
-        : m_msg(type, tag) {}
+    explicit LogInput(const Type& type, const std::string_view& tag, const Color& color)
+        : m_msg(type, tag, color) {}
 
     ~LogInput()
     {
