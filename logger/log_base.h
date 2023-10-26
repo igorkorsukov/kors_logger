@@ -25,6 +25,8 @@ SOFTWARE.
 #ifndef KORS_LOG_BASE_H
 #define KORS_LOG_BASE_H
 
+#include <cassert>
+
 #include "funcinfo.h"
 #include "logger.h"
 
@@ -51,12 +53,45 @@ SOFTWARE.
 #define LOGDA LOGDA_T(LOG_TAG)      // active debug
 #define LOGN if (0) LOGD_T(LOG_TAG) // compiling, but no output
 
-//! Helps
+//! Useful macros
+#define DO_ASSERT_X(cond, msg) \
+    if (!(cond)) { \
+        LOGE() << "\"ASSERT FAILED!\": " << msg << ", file: " << __FILE__ << ", line: " << __LINE__; \
+        assert(cond); \
+    } \
+
+#define DO_ASSERT(cond) DO_ASSERT_X(cond, #cond)
+#define ASSERT_X(msg) DO_ASSERT_X(false, msg)
+
+#define IF_ASSERT_FAILED_X(cond, msg) \
+    DO_ASSERT_X(cond, msg) \
+    if (!(cond)) \
+
+#define IF_ASSERT_FAILED(cond) IF_ASSERT_FAILED_X(cond, #cond)
+
+#define IF_FAILED(cond) \
+    if (!(cond)) { \
+        LOGE() << "\"FAILED!\": " << #cond << ", file: " << __FILE__ << ", line: " << __LINE__; \
+    } \
+    if (!(cond)) \
+
+#define UNUSED(x) (void)x;
+
+#define UNREACHABLE \
+    LOGE() << "\"UNREACHABLE!\": " << ", file: " << __FILE__ << ", line: " << __LINE__; \
+    ASSERT_X("UNREACHABLE was reached"); \
+
 #define DEPRECATED LOGD() << "This function deprecated!!";
 #define DEPRECATED_USE(use) LOGD() << "This function deprecated!! Use:" << use;
 #define NOT_IMPLEMENTED LOGW() << "Not implemented!!";
 #define NOT_IMPL_RETURN NOT_IMPLEMENTED return
 #define NOT_SUPPORTED LOGW() << "Not supported!!";
 #define NOT_SUPPORTED_USE(use) LOGW() << "Not supported!! Use:" << use;
+
+#if __has_cpp_attribute(fallthrough)
+#define FALLTHROUGH [[fallthrough]]
+#else
+#define FALLTHROUGH (void)0
+#endif
 
 #endif // KORS_LOG_BASE_H
