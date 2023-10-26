@@ -51,6 +51,9 @@ public:
         15:21:53.455 | WARN  | main_thread     | Qt         | example: This is qWarning
         */
 
+        //! Using message formatting
+        LOGI("This is formatted message, arg1: %d, arg2: %d, sum: %d", 40, 2, 42);
+
         //! Set tag (default class name)
 
         #undef LOG_TAG
@@ -107,7 +110,7 @@ public:
         logger->setType("MYTRACE", true);
 
         //! Add to log.h
-        #define MYTRACE() IF_LOGLEVEL(kors::logger::Debug) LOG("MYTRACE", LOG_TAG)
+#define MYTRACE IF_LOGLEVEL(kors::logger::Debug) LOG("MYTRACE", LOG_TAG)
 
         MYTRACE() << "This my trace";
 
