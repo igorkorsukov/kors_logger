@@ -25,32 +25,22 @@ SOFTWARE.
 #define KORS_LOGGER_H
 
 #include <string>
-#include <cstring>
+#include <string_view>
 #include <thread>
 #include <vector>
 #include <mutex>
 
 #include "logstream.h"
 
+#undef ERROR
+#undef WARN
+#undef INFO
+#undef DEBUG
+
 namespace kors::logger {
-//! Types
-struct Ascii
-{
-    constexpr Ascii(const char* n)
-        : m_size(n ? std::char_traits<char>::length(n) : 0), m_data(n) {}
+//! Types --------------------------------
 
-    inline bool operator ==(const Ascii& s) const { return m_size == s.m_size && std::memcmp(m_data, s.m_data, m_size) == 0; }
-    inline bool operator !=(const Ascii& s) const { return !this->operator==(s); }
-
-    size_t size() const { return m_size; }
-    const char* c_str() const { return m_data; }
-
-private:
-    size_t m_size = 0;
-    const char* m_data = nullptr;
-};
-
-using Type = Ascii;
+using Type = std::string_view;
 
 static constexpr Type ERROR = "ERROR";
 static constexpr Type WARN = "WARN";
@@ -97,16 +87,16 @@ public:
 
     LogMsg() = default;
 
-    LogMsg(const Type& l, const std::string& t)
+    LogMsg(const Type& l, const std::string_view& t)
         : type(l), tag(t), datetime(DateTime::now()),
         thread(std::this_thread::get_id()) {}
 
-    LogMsg(const Type& l, const std::string& t, const std::string& m)
+    LogMsg(const Type& l, const std::string_view& t, const std::string& m)
         : type(l), tag(t), message(m), datetime(DateTime::now()),
         thread(std::this_thread::get_id()) {}
 
     Type type;
-    std::string tag;
+    std::string_view tag;
     std::string message;
     DateTime datetime;
     std::thread::id thread;
@@ -121,7 +111,7 @@ public:
 
     struct PatternData {
         PatternData() = default;
-        Ascii pattern = nullptr;
+        std::string_view pattern;
         std::string beforeStr;
         int index = -1;
         int count = 0;
@@ -138,7 +128,7 @@ public:
     virtual std::string formatTime(const Time& time) const;
     virtual std::string formatThread(const std::thread::id& thID) const;
 
-    static PatternData parcePattern(const std::string& format, const Ascii& pattern);
+    static PatternData parcePattern(const std::string& format, const std::string_view& pattern);
     static std::vector<PatternData> patterns(const std::string& format);
 
 private:
@@ -216,7 +206,7 @@ private:
 class LogInput
 {
 public:
-    explicit LogInput(const Type& type, const std::string& tag)
+    explicit LogInput(const Type& type, const std::string_view& tag)
         : m_msg(type, tag) {}
 
     ~LogInput()
@@ -225,7 +215,8 @@ public:
         Logger::instance()->write(m_msg);
     }
 
-    Stream& stream() { return m_stream; }
+    inline Stream& stream() { return m_stream; }
+    Stream& stream(const char* msg, ...);
 
 private:
     LogMsg m_msg;

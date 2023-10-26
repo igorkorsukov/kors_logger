@@ -25,36 +25,24 @@ SOFTWARE.
 #ifndef KORS_LOG_BASE_H
 #define KORS_LOG_BASE_H
 
-#include "helpful.h"
+#include "funcinfo.h"
 #include "logger.h"
-
-#ifndef FUNC_INFO
-#if defined(_MSC_VER)
-    #define FUNC_INFO __FUNCSIG__
-#else
-    #define FUNC_INFO __PRETTY_FUNCTION__
-#endif
-#endif
-
-//! Format
-#define CLASSNAME(sig) kors::logger::Helpful::className(sig)
-#define FUNCNAME(sig) kors::logger::Helpful::methodName(sig)
 
 //! Log
 
 #ifndef LOG_TAG
-#define LOG_TAG CLASSNAME(FUNC_INFO)
+#define LOG_TAG CLASSFUNC
 #endif
 
 #define IF_LOGLEVEL(level)  if (kors::logger::Logger::instance()->isLevel(level))
 
-#define LOG_STREAM(type, tag) kors::logger::LogInput(type, tag).stream()
-#define LOG(type, tag)  LOG_STREAM(type, tag) << FUNCNAME(FUNC_INFO) << ": "
+#define LOG_STREAM(type, tag) kors::logger::LogInput(type, tag).stream
+#define LOG(type, tag)  LOG_STREAM(type, tag)
 
-#define LOGE()      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::ERROR, LOG_TAG)
-#define LOGW()      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::WARN, LOG_TAG)
-#define LOGI()      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::INFO, LOG_TAG)
-#define LOGD()      IF_LOGLEVEL(kors::logger::Debug) LOG(kors::logger::DEBUG, LOG_TAG)
+#define LOGE      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::ERROR, LOG_TAG)
+#define LOGW      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::WARN, LOG_TAG)
+#define LOGI      IF_LOGLEVEL(kors::logger::Normal) LOG(kors::logger::INFO, LOG_TAG)
+#define LOGD      IF_LOGLEVEL(kors::logger::Debug) LOG(kors::logger::DEBUG, LOG_TAG)
 
 //! Helps
 #define DEPRECATED LOGD() << "This function deprecated!!";

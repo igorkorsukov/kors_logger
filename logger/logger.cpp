@@ -29,18 +29,18 @@ SOFTWARE.
 #include <cassert>
 
 #include "logdefdest.h"
-#include "helpful.h"
+#include "funcinfo.h"
 
 using namespace kors::logger;
 
 // Layout ---------------------------------
 
-static constexpr Ascii DATETIME_PATTERN("${datetime}");
-static constexpr Ascii TIME_PATTERN("${time}");
-static constexpr Ascii TYPE_PATTERN("${type}");
-static constexpr Ascii TAG_PATTERN("${tag}");
-static constexpr Ascii THREAD_PATTERN("${thread}");
-static constexpr Ascii MESSAGE_PATTERN("${message}");
+static constexpr std::string_view DATETIME_PATTERN("${datetime}");
+static constexpr std::string_view TIME_PATTERN("${time}");
+static constexpr std::string_view TYPE_PATTERN("${type}");
+static constexpr std::string_view TAG_PATTERN("${tag}");
+static constexpr std::string_view THREAD_PATTERN("${thread}");
+static constexpr std::string_view MESSAGE_PATTERN("${message}");
 
 static constexpr char ZERO('0');
 static constexpr char COLON(':');
@@ -49,9 +49,9 @@ static constexpr char HYPEN('-');
 static constexpr char T('T');
 static constexpr char SPACE(' ');
 
-static constexpr Ascii MAIN_THREAD("main_thread");
+static constexpr std::string_view MAIN_THREAD("main_thread");
 
-static std::string leftJustified(const char* in, size_t width)
+static std::string leftJustified(const std::string_view& in, size_t width)
 {
     std::string out(in);
     if (width > out.size()) {
@@ -106,7 +106,7 @@ LogLayout::~LogLayout()
 
 std::vector<LogLayout::PatternData> LogLayout::patterns(const std::string& format)
 {
-    static const std::vector<Ascii> ps = {
+    static const std::vector<std::string_view> ps = {
         DATETIME_PATTERN,
         TIME_PATTERN,
         TYPE_PATTERN,
@@ -116,7 +116,7 @@ std::vector<LogLayout::PatternData> LogLayout::patterns(const std::string& forma
     };
 
     std::vector<LogLayout::PatternData> patterns;
-    for (const Ascii& pstr : ps) {
+    for (const std::string_view& pstr : ps) {
         PatternData p = parcePattern(format, pstr);
         if (p.index > -1) {
             patterns.push_back(std::move(p));
@@ -130,13 +130,12 @@ std::vector<LogLayout::PatternData> LogLayout::patterns(const std::string& forma
     return patterns;
 }
 
-LogLayout::PatternData LogLayout::parcePattern(const std::string& format, const Ascii& pattern)
+LogLayout::PatternData LogLayout::parcePattern(const std::string& format, const std::string_view& pattern)
 {
     PatternData p;
     p.pattern = pattern;
 
-    std::string patternStr(pattern.c_str());
-    std::string beginPattern(patternStr.substr(0, patternStr.size() - 1));
+    std::string beginPattern(pattern.substr(0, pattern.size() - 1));
     std::string::size_type beginPatternIndex = format.find(beginPattern);
     if (beginPatternIndex != std::string::npos) {
         p.index = beginPatternIndex;
@@ -196,7 +195,7 @@ std::string LogLayout::formatPattern(const LogMsg& logMsg, const PatternData& p)
     } else if (TIME_PATTERN == p.pattern) {
         return leftJustified(formatTime(logMsg.datetime.time), p.minWidth);
     } else if (TYPE_PATTERN == p.pattern) {
-        return leftJustified(logMsg.type.c_str(), p.minWidth);
+        return leftJustified(logMsg.type, p.minWidth);
     } else if (TAG_PATTERN == p.pattern) {
         return leftJustified(logMsg.tag, p.minWidth);
     } else if (THREAD_PATTERN == p.pattern) {
@@ -205,7 +204,7 @@ std::string LogLayout::formatPattern(const LogMsg& logMsg, const PatternData& p)
         return leftJustified(logMsg.message, p.minWidth);
     }
 
-    return std::string(p.pattern.c_str());
+    return std::string(p.pattern);
 }
 
 std::string LogLayout::formatDateTime(const DateTime& dt) const
@@ -273,7 +272,7 @@ std::string LogLayout::formatTime(const Time& t) const
 std::string LogLayout::formatThread(const std::thread::id& thID) const
 {
     if (m_mainThread == thID) {
-        static const std::string MAIN_THREAD_STR(MAIN_THREAD.c_str());
+        static const std::string MAIN_THREAD_STR(MAIN_THREAD);
         return MAIN_THREAD_STR;
     }
     std::ostringstream ss;
@@ -317,7 +316,7 @@ Logger::~Logger()
 void Logger::setupDefault()
 {
     clearDests();
-    addDest(new ConsoleLogDest(LogLayout("${time} | ${type|5} | ${thread} | ${tag|10} | ${message}")));
+    addDest(new ConsoleLogDest(LogLayout("${time} | ${type|5} | ${thread|15} | ${tag|15} | ${message}")));
 
     m_level = Normal;
 
@@ -412,12 +411,7 @@ void Logger::logMsgHandler(QtMsgType type, const QMessageLogContext& ctx, const 
         return;
     }
 
-    static std::string Qt("Qt");
-
-    std::string sig = ctx.function;
-    std::string msg = Helpful::methodName(sig) + ": " + s.toStdString();
-
-    LogMsg logMsg(qtMsgTypeToString(type), Qt, msg);
+    LogMsg logMsg(qtMsgTypeToString(type), funcinfo::classFuncBySig(ctx.function), s.toStdString());
 
     Logger::instance()->write(logMsg);
 }
@@ -440,3 +434,17 @@ void Logger::setIsCatchQtMsg(bool arg)
 }
 
 #endif
+
+Stream& LogInput::stream(const char* msg, ...)
+{
+    static const int BUFFER_SIZE = 2048;
+
+    va_list args;
+    va_start(args, msg);
+    char buffer[BUFFER_SIZE];
+    vsnprintf(buffer, BUFFER_SIZE, msg, args);
+    m_stream << buffer;
+    va_end(args);
+
+    return m_stream;
+}

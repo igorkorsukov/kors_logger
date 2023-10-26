@@ -16,11 +16,12 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/../logger/logger.cmake)
 
-include_directories(${HAW_LOGGER_INC})
+include_directories(${KORS_LOGGER_INC})
 
 add_executable(${PROJECT_NAME}
     main.cpp
-    ${HAW_LOGGER_SRC}
+    ${KORS_LOGGER_SRC}
+    log.h
 )
 
 target_link_libraries(${PROJECT_NAME}

@@ -10,7 +10,7 @@ namespace fs = std::experimental::filesystem;
 #endif
 
 #include "logdefdest.h"
-#include "log_base.h"
+#include "log.h"
 
 class Example
 {
@@ -54,7 +54,7 @@ public:
         //! Using message formatting
         LOGI("This is formatted message, arg1: %d, arg2: %d, sum: %d", 40, 2, 42);
 
-        //! Set tag (default class name)
+        //! Set tag (default class::func)
 
         #undef LOG_TAG
         #define LOG_TAG "MYTAG"
@@ -69,7 +69,7 @@ public:
 
         LOGD() << "This is debug";
 #ifdef KORS_LOGGER_QT_SUPPORT
-        qDebug() << "This is qDebug";
+        qDebug() << "This is qDebug (for Qt always tag is class::func)";
 #endif
 
         /*
@@ -78,17 +78,18 @@ public:
         */
 
         //! --- Setup logger ---
+        LOGI() << "Custom setup... ";
         //! Destination and format
         logger->clearDests();
 
         //! Console
-        logger->addDest(new ConsoleLogDest(LogLayout("${time} | ${type|5} | ${thread} | ${tag|10} | ${message}")));
+        logger->addDest(new ConsoleLogDest(LogLayout("${time} | ${type|7} | ${thread} | ${tag|20} | ${message}")));
 
         std::string pwd = fs::current_path();
         //! File,this creates a file named "apppath/logs/myapp_yyMMdd.log"
         std::string logPath = pwd + "/logs";
         logger->addDest(new FileLogDest(logPath, "myapp", "log",
-                                        LogLayout("${datetime} | ${type|5} | ${thread} | ${tag|10} | ${message}")));
+                                        LogLayout("${datetime} | ${type|7} | ${thread} | ${tag|20} | ${message}")));
 
         /** NOTE Layout have a tags
         "${datetime}"   - yyyy-MM-ddThh:mm:ss.zzz
@@ -100,6 +101,8 @@ public:
         |N - min field width
          */
 
+        LOGI() << "now log fields width is changed";
+
         //! Level
         logger->setLevel(kors::logger::Debug);
 
@@ -109,8 +112,7 @@ public:
         //! Custom types
         logger->setType("MYTRACE", true);
 
-        //! Add to log.h
-#define MYTRACE IF_LOGLEVEL(kors::logger::Debug) LOG("MYTRACE", LOG_TAG)
+        //! See custom macro in log.h
 
         MYTRACE() << "This my trace";
 
@@ -137,7 +139,7 @@ int main(int argc, char* argv[])
     t.example();
 
 #undef LOG_TAG
-#define LOG_TAG CLASSNAME(FUNC_INFO)
+#define LOG_TAG CLASSFUNC
 
-    LOGI() << "Good bye!";
+    LOGI() << "Goodbye!";
 }
