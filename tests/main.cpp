@@ -85,11 +85,14 @@ public:
         //! Console
         logger->addDest(new ConsoleLogDest(LogLayout("${time} | ${type|7} | ${thread} | ${tag|20} | ${message}")));
 
+        //! File
         std::string pwd = fs::current_path();
-        //! File,this creates a file named "apppath/logs/myapp_yyMMdd.log"
-        std::string logPath = pwd + "/logs";
-        logger->addDest(new FileLogDest(logPath, "myapp", "log",
-                                        LogLayout("${datetime} | ${type|7} | ${thread} | ${tag|20} | ${message}")));
+        std::string logsDir = pwd + "/logs";
+        if (!fs::exists(logsDir)) {
+            fs::create_directories(logsDir);
+        }
+        std::string logPath = logsDir + "/myapp.log";
+        logger->addDest(new FileLogDest(logPath, LogLayout("${datetime} | ${type|7} | ${thread} | ${tag|20} | ${message}")));
 
         /** NOTE Layout have a tags
         "${datetime}"   - yyyy-MM-ddThh:mm:ss.zzz
@@ -107,7 +110,9 @@ public:
         logger->setLevel(kors::logger::Debug);
 
         //! Catch Qt message
+#ifdef KORS_LOGGER_QT_SUPPORT
         logger->setIsCatchQtMsg(true);
+#endif
 
         //! Custom types
         logger->setType("MYTRACE", true);
