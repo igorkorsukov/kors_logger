@@ -24,14 +24,14 @@ public:
         Logger* logger = Logger::instance();
         logger->setupDefault();
 
-        //! Default output to console, catch Qt messages
+        //! Default output to console, catch Qt messages (if supported)
 
         LOGE() << "This is error";
         LOGW() << "This is warning";
         LOGI() << "This is info";
         LOGD() << "This is debug"; //! NOTE Default not output
 
-        std::thread t1([]() { LOGI() << "From thread"; });
+        std::thread t1([]() { LOGI() << "Info from thread"; });
         t1.join();
 
 #ifdef KORS_LOGGER_QT_SUPPORT
@@ -43,25 +43,29 @@ public:
 #endif
 
         /*
-        15:21:53.454 | ERROR | main_thread     | Example    | example: This is error
-        15:21:53.454 | WARN  | main_thread     | Example    | example: This is warning
-        15:21:53.454 | INFO  | main_thread     | Example    | example: This is info
-        15:21:53.454 | INFO  | 139855304345344 | Example    | example: From thread
-        15:21:53.455 | ERROR | main_thread     | Qt         | example: This is qCritical
-        15:21:53.455 | WARN  | main_thread     | Qt         | example: This is qWarning
+        23:07:43.602 | ERROR | main_thread     | Example::example | This is error
+        23:07:43.602 | WARN  | main_thread     | Example::example | This is warning
+        23:07:43.602 | INFO  | main_thread     | Example::example | This is info
+        23:07:43.602 | INFO  | 140147421083200 | Example::example | Info from thread
+        23:07:43.602 | ERROR | main_thread     | Example::example | This is qCritical
+        23:07:43.603 | WARN  | main_thread     | Example::example | This is qWarning
+        23:07:43.603 | INFO  | main_thread     | Example::example | "This is QString"
         */
 
         //! Using message formatting
-        LOGI("This is formatted message, arg1: %d, arg2: %d, sum: %d", 40, 2, 42);
+        LOGD("This is formatted message, arg1: %d, arg2: %d, sum: %d", 40, 2, 42);
+        /*
+        23:07:43.603 | INFO  | main_thread     | Example::example | This is formatted message, arg1: 40, arg2: 2, sum: 42
+        */
 
         //! Set tag (default class::func)
 
         #undef LOG_TAG
         #define LOG_TAG "MYTAG"
 
-        LOGI() << "This is info with tag";
+        LOGI() << "This is info with custorm tag";
         /*
-        15:21:53.455 | INFO  | main_thread     | MYTAG      | example: This is info with tag
+        23:07:43.603 | INFO  | main_thread     | MYTAG           | This is info with custorm tag
         */
 
         //! Set log level
@@ -73,8 +77,8 @@ public:
 #endif
 
         /*
-        15:34:54.257 | DEBUG | main_thread     | MYTAG      | example: This is debug
-        15:34:54.257 | DEBUG | main_thread     | Qt         | example: This is qDebug
+        23:07:43.603 | DEBUG | main_thread     | MYTAG           | This is debug
+        23:07:43.603 | DEBUG | main_thread     | Example::example | This is qDebug (for Qt always tag is class::func)
         */
 
         //! --- Setup logger ---
@@ -99,17 +103,24 @@ public:
         "${time}"       - hh:mm:ss.zzz
         "${type}"       - type
         "${tag}"        - tag
-        "${thread}"     - thread, the main thread output as "main" otherwise hex
+        "${thread}"     - thread, the main thread output as "main_thread" otherwise thread id
         "${message}"    - message
         |N - min field width
          */
 
         LOGI() << "now log fields width is changed";
+        /*
+        23:07:43.603 | INFO  | main_thread     | MYTAG           | Custom setup...
+        23:07:43.603 | INFO    | main_thread | MYTAG                | now log fields width is changed
+        */
+
+        //! NOTE Custom log layout can be used - inherits of the LogLayout with overridden method "output"
+        //! NOTE Any custom destinations can be added - inherits of the LogDest with overridden method "write"
 
         //! Level
         logger->setLevel(kors::logger::Debug);
 
-        //! Catch Qt message
+        //! Catch Qt message (if supported)
 #ifdef KORS_LOGGER_QT_SUPPORT
         logger->setIsCatchQtMsg(true);
 #endif
@@ -117,22 +128,18 @@ public:
         //! Custom types
         logger->setType("MYTRACE", true);
 
-        //! See custom macro in log.h
+        //! See custom macro in example log.h
 
         MYTRACE() << "This my trace";
 
         /*
-        15:34:54.257 | MYTRACE | main_thread     | MYTAG      | example: This my trace
+        23:07:43.603 | MYTRACE | main_thread | MYTAG                | This my trace
         */
 
-        //! That type does not output
-        logger->setType("MYTRACE", false); //! NOTE Type must be a debug level
+        //! Disable output for type
+        logger->setType("MYTRACE", false); //! NOTE Type should be a debug level
 
         MYTRACE() << "This my trace"; //! NOTE Not output
-
-        //! Custom LogLayout - inherits of the LogLayout and override method "output"
-        //! Custom LogDest - inherits of the LogDest and override method "write"
-        //! Custom log macro - see log.h
     }
 };
 

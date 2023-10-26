@@ -14,7 +14,7 @@ if (KORS_LOGGER_QT_SUPPORT)
     add_definitions(-DKORS_LOGGER_QT_SUPPORT)
 endif()
 
-include(${CMAKE_CURRENT_LIST_DIR}/../logger/logger.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../logger.cmake)
 
 include_directories(${KORS_LOGGER_INC})
 

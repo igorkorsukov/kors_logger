@@ -31,6 +31,31 @@ SOFTWARE.
 #include <QDebug>
 #endif
 
+//! NOTE Example add operator for custom types
+/*
+1) Recommended add own log stream type in your project
+file: app/src/global/logstream.h
+
+#ifndef APP_LOGSTREAM_H
+#define APP_LOGSTREAM_H
+
+#include "thirdparty/kors_logger/src/logstream.h"
+namespace app::logger {
+using Stream = kors::logger::Stream;
+}
+
+#endif // APP_LOGSTREAM_H
+
+2) Add stream operator for your type
+file: app/src/.../sometype.h
+
+inline app::logger::Stream& operator<<(app::logger::Stream& s, const SomeType& v)
+{
+    s << v.toStdString();
+    return s;
+}
+*/
+
 namespace kors::logger {
 class Stream
 {
@@ -55,6 +80,7 @@ public:
     inline Stream& operator<<(const char* t) { m_ss << t; return *this; }
 
     inline Stream& operator<<(const std::string& t) { m_ss << t; return *this; }
+    inline Stream& operator<<(const std::string_view& t) { m_ss << t; return *this; }
     inline Stream& operator<<(const std::thread::id& t) { m_ss << t; return *this; }
 
     template<typename T>
@@ -62,7 +88,7 @@ public:
     {
         m_ss << '[';
         for (size_t i = 0; i < t.size(); ++i) {
-            m_ss << t[i];
+            m_ss << t.at(i);
             if (i < t.size() - 1) {
                 m_ss << ',';
             }
