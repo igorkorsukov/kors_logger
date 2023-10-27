@@ -52,6 +52,11 @@ static constexpr char SPACE(' ');
 
 static constexpr std::string_view MAIN_THREAD("main_thread");
 
+const Type Logger::ERRR = "ERROR";
+const Type Logger::WARN = "WARN";
+const Type Logger::INFO = "INFO";
+const Type Logger::DEBG = "DEBUG";
+
 static std::string leftJustified(const std::string_view& in, size_t width)
 {
     std::string out(in);
@@ -314,18 +319,24 @@ Logger::~Logger()
     clearDests();
 }
 
+Logger* Logger::instance()
+{
+    static Logger l;
+    return &l;
+}
+
 void Logger::setupDefault()
 {
     clearDests();
     addDest(new ConsoleLogDest(LogLayout("${time} | ${type|5} | ${thread|15} | ${tag|15} | ${message}")));
 
-    m_level = Normal;
+    m_level = Level::Normal;
 
     m_types.clear();
-    m_types.push_back(ERROR);
+    m_types.push_back(ERRR);
     m_types.push_back(WARN);
     m_types.push_back(INFO);
-    m_types.push_back(DEBUG);
+    m_types.push_back(DEBG);
 
 #ifdef KORS_LOGGER_QT_SUPPORT
     setIsCatchQtMsg(true);
@@ -344,7 +355,7 @@ void Logger::write(const LogMsg& logMsg)
 
 bool Logger::isAsseptMsg(const Type& type) const
 {
-    return m_level == Full || m_level == Normal || isType(type);
+    return m_level == Level::Full || m_level == Level::Normal || isType(type);
 }
 
 bool Logger::isType(const Type& type) const
@@ -408,23 +419,25 @@ void Logger::setType(const Type& type, bool enb)
 #ifdef KORS_LOGGER_QT_SUPPORT
 void Logger::logMsgHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& s)
 {
-    if (type == QtDebugMsg && !Logger::instance()->isLevel(Debug)) {
+    if (type == QtDebugMsg && !Logger::instance()->isLevel(Level::Debug)) {
         return;
     }
 
     auto qtMsgTypeToLogType = [](QtMsgType qType) -> std::pair<Type, Color> {
         switch (qType) {
-        case QtDebugMsg: return { DEBUG, Color::None };
+        case QtDebugMsg: return { DEBG, Color::None };
         case QtWarningMsg: return { WARN, Color::Yellow };
-        case QtCriticalMsg: return { ERROR, Color::Red };
-        case QtFatalMsg: return { ERROR, Color::Red };
+        case QtCriticalMsg: return { ERRR, Color::Red };
+        case QtFatalMsg: return { ERRR, Color::Red };
         default: return { INFO, Color::Green };
         }
     };
 
     std::pair<Type, Color> t = qtMsgTypeToLogType(type);
 
-    LogMsg logMsg(t.first, funcinfo::classFuncBySig(ctx.function),  t.second, s.toStdString());
+    std::string_view tag = ctx.function ? funcinfo::classFuncBySig(ctx.function) : "Qt";
+
+    LogMsg logMsg(t.first, tag,  t.second, s.toStdString());
 
     Logger::instance()->write(logMsg);
 }

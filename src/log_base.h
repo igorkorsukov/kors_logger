@@ -40,11 +40,11 @@ SOFTWARE.
 
 #define LOG_STREAM(type, tag, color) kors::logger::LogInput(type, tag, color).stream
 
-#define LOGE_T(tag) IF_LOGLEVEL(kors::logger::Normal) LOG_STREAM(kors::logger::ERROR, tag, kors::logger::Color::Red)
-#define LOGW_T(tag) IF_LOGLEVEL(kors::logger::Normal) LOG_STREAM(kors::logger::WARN, tag, kors::logger::Color::Yellow)
-#define LOGI_T(tag) IF_LOGLEVEL(kors::logger::Normal) LOG_STREAM(kors::logger::INFO, tag, kors::logger::Color::Green)
-#define LOGD_T(tag) IF_LOGLEVEL(kors::logger::Debug) LOG_STREAM(kors::logger::DEBUG, tag, kors::logger::Color::None)
-#define LOGDA_T(tag) IF_LOGLEVEL(kors::logger::Debug) LOG_STREAM(kors::logger::DEBUG, tag, kors::logger::Color::Cyan)
+#define LOGE_T(tag) IF_LOGLEVEL(kors::logger::Level::Normal) LOG_STREAM(kors::logger::Logger::ERRR, tag, kors::logger::Color::Red)
+#define LOGW_T(tag) IF_LOGLEVEL(kors::logger::Level::Normal) LOG_STREAM(kors::logger::Logger::WARN, tag, kors::logger::Color::Yellow)
+#define LOGI_T(tag) IF_LOGLEVEL(kors::logger::Level::Normal) LOG_STREAM(kors::logger::Logger::INFO, tag, kors::logger::Color::Green)
+#define LOGD_T(tag) IF_LOGLEVEL(kors::logger::Level::Debug) LOG_STREAM(kors::logger::Logger::DEBG, tag, kors::logger::Color::None)
+#define LOGDA_T(tag) IF_LOGLEVEL(kors::logger::Level::Debug) LOG_STREAM(kors::logger::Logger::DEBG, tag, kors::logger::Color::Cyan)
 
 #define LOGE LOGE_T(LOG_TAG)
 #define LOGW LOGW_T(LOG_TAG)
@@ -81,12 +81,12 @@ SOFTWARE.
     LOGE() << "\"UNREACHABLE!\": " << ", file: " << __FILE__ << ", line: " << __LINE__; \
     ASSERT_X("UNREACHABLE was reached"); \
 
-#define DEPRECATED LOGD() << "This function deprecated!!";
-#define DEPRECATED_USE(use) LOGD() << "This function deprecated!! Use:" << use;
-#define NOT_IMPLEMENTED LOGW() << "Not implemented!!";
+#define DEPRECATED LOGD() << "This function deprecated!!"
+#define DEPRECATED_USE(use) LOGD() << "This function deprecated!! Use:" << use
+#define NOT_IMPLEMENTED LOGW() << "Not implemented!!"
 #define NOT_IMPL_RETURN NOT_IMPLEMENTED return
-#define NOT_SUPPORTED LOGW() << "Not supported!!";
-#define NOT_SUPPORTED_USE(use) LOGW() << "Not supported!! Use:" << use;
+#define NOT_SUPPORTED LOGW() << "Not supported!!"
+#define NOT_SUPPORTED_USE(use) LOGW() << "Not supported!! Use:" << use
 
 #if __has_cpp_attribute(fallthrough)
 #define FALLTHROUGH [[fallthrough]]

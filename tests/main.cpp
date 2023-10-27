@@ -69,7 +69,7 @@ public:
         */
 
         //! Set log level
-        logger->setLevel(kors::logger::Debug);
+        logger->setLevel(Level::Debug);
 
         LOGD() << "This is debug";
 #ifdef KORS_LOGGER_QT_SUPPORT
@@ -118,7 +118,7 @@ public:
         //! NOTE Any custom destinations can be added - inherits of the LogDest with overridden method "write"
 
         //! Level
-        logger->setLevel(kors::logger::Debug);
+        logger->setLevel(Level::Debug);
 
         //! Catch Qt message (if supported)
 #ifdef KORS_LOGGER_QT_SUPPORT

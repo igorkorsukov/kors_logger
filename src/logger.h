@@ -42,12 +42,7 @@ namespace kors::logger {
 
 using Type = std::string_view;
 
-static constexpr Type ERROR = "ERROR";
-static constexpr Type WARN = "WARN";
-static constexpr Type INFO = "INFO";
-static constexpr Type DEBUG = "DEBUG";
-
-enum Level {
+enum class Level {
     Off     = 0,
     Normal  = 1,
     Debug   = 2,
@@ -169,17 +164,18 @@ class Logger
 {
 public:
 
-    static Logger* instance()
-    {
-        static Logger l;
-        return &l;
-    }
+    static const Type ERRR;
+    static const Type WARN;
+    static const Type INFO;
+    static const Type DEBG;
+
+    static Logger* instance();
 
     void setupDefault();
 
     void setLevel(Level level);
     Level level() const;
-    inline bool isLevel(Level level) const { return level <= m_level && level != Off; }
+    inline bool isLevel(Level level) const { return level <= m_level && level != Level::Off; }
 
     std::vector<Type> types() const;
     void setTypes(const std::vector<Type>& types);
@@ -206,7 +202,7 @@ private:
     static void logMsgHandler(QtMsgType, const QMessageLogContext&, const QString&);
 #endif
 
-    Level m_level = Normal;
+    Level m_level = Level::Normal;
     std::vector<LogDest*> m_dests;
     std::vector<Type> m_types;
     std::mutex m_mutex;
