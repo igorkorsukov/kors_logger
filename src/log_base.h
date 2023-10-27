@@ -88,10 +88,12 @@ SOFTWARE.
 #define NOT_SUPPORTED LOGW() << "Not supported!!"
 #define NOT_SUPPORTED_USE(use) LOGW() << "Not supported!! Use:" << use
 
-#if __has_cpp_attribute(fallthrough)
-#define FALLTHROUGH [[fallthrough]]
-#else
-#define FALLTHROUGH (void)0
+#ifndef FALLTHROUGH
+    #if __has_cpp_attribute(fallthrough)
+        #define FALLTHROUGH [[fallthrough]]
+    #else
+        #define FALLTHROUGH (void)0
+    #endif
 #endif
 
 #endif // KORS_LOG_BASE_H

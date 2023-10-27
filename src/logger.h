@@ -119,8 +119,8 @@ public:
         PatternData() = default;
         std::string_view pattern;
         std::string beforeStr;
-        int index = -1;
-        int count = 0;
+        size_t index = std::string::npos;
+        size_t count = 0;
         size_t minWidth = 0;
     };
 
