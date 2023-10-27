@@ -18,6 +18,8 @@ Features:
 
 ![example_log](./example/example_log.png)
 
+Used in at least two private commercial projects and one [open source](https://github.com/musescore/MuseScore).
+
 ## Integration 
 
 ### Add source 
