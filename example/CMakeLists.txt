@@ -22,6 +22,8 @@ add_executable(${PROJECT_NAME}
     main.cpp
     ${KORS_LOGGER_SRC}
     log.h
+    logger.h
+    logstream.h
 )
 
 target_link_libraries(${PROJECT_NAME}

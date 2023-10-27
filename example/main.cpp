@@ -9,8 +9,24 @@ namespace fs = std::experimental::filesystem;
 #include <QPoint>
 #endif
 
-#include "logdefdest.h"
+#include "logger.h"
+#include "logstream.h"
 #include "log.h"
+
+namespace app {
+struct MyType
+{
+    MyType (int v)
+        : val(v) {}
+
+    int val = 0;
+};
+
+inline app::logger::Stream& operator<<(app::logger::Stream& s, const MyType& t)
+{
+    s << t.val;
+    return s;
+}
 
 class Example
 {
@@ -19,9 +35,7 @@ public:
 
     void example()
     {
-        using namespace kors::logger;
-
-        Logger* logger = Logger::instance();
+        logger::Logger* logger = logger::Logger::instance();
         logger->setupDefault();
 
         //! Default output to console, catch Qt messages (if supported)
@@ -42,6 +56,8 @@ public:
         LOGI() << QString("This is QString");
 #endif
 
+        LOGI() << "This is custom type: " << MyType(42);
+
         /*
         23:07:43.602 | ERROR | main_thread     | Example::example | This is error
         23:07:43.602 | WARN  | main_thread     | Example::example | This is warning
@@ -50,6 +66,7 @@ public:
         23:07:43.602 | ERROR | main_thread     | Example::example | This is qCritical
         23:07:43.603 | WARN  | main_thread     | Example::example | This is qWarning
         23:07:43.603 | INFO  | main_thread     | Example::example | "This is QString"
+        23:07:43.603 | INFO  | main_thread     | Example::example | This is custom type: 42
         */
 
         //! Using message formatting
@@ -69,7 +86,7 @@ public:
         */
 
         //! Set log level
-        logger->setLevel(Level::Debug);
+        logger->setLevel(logger::Level::Debug);
 
         LOGD() << "This is debug";
 #ifdef KORS_LOGGER_QT_SUPPORT
@@ -87,7 +104,7 @@ public:
         logger->clearDests();
 
         //! Console
-        logger->addDest(new ConsoleLogDest(LogLayout("${time} | ${type|7} | ${thread} | ${tag|20} | ${message}")));
+        logger->addDest(new logger::ConsoleLogDest(logger::LogLayout("${time} | ${type|7} | ${thread} | ${tag|20} | ${message}")));
 
         //! File
         std::string pwd = fs::current_path();
@@ -96,7 +113,8 @@ public:
             fs::create_directories(logsDir);
         }
         std::string logPath = logsDir + "/myapp.log";
-        logger->addDest(new FileLogDest(logPath, LogLayout("${datetime} | ${type|7} | ${thread} | ${tag|20} | ${message}")));
+        logger->addDest(new logger::FileLogDest(logPath,
+                                                logger::LogLayout("${datetime} | ${type|7} | ${thread} | ${tag|20} | ${message}")));
 
         /** NOTE Layout have a tags
         "${datetime}"   - yyyy-MM-ddThh:mm:ss.zzz
@@ -118,7 +136,7 @@ public:
         //! NOTE Any custom destinations can be added - inherits of the LogDest with overridden method "write"
 
         //! Level
-        logger->setLevel(Level::Debug);
+        logger->setLevel(logger::Level::Debug);
 
         //! Catch Qt message (if supported)
 #ifdef KORS_LOGGER_QT_SUPPORT
@@ -142,12 +160,13 @@ public:
         MYTRACE() << "This my trace"; //! NOTE Not output
     }
 };
+}
 
 int main(int argc, char* argv[])
 {
     std::cout << "Hello World, I am Logger\n";
 
-    Example t;
+    app::Example t;
     t.example();
 
 #undef LOG_TAG

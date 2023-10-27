@@ -14,22 +14,30 @@ Features:
 * Custom messages types
 * Filter by type
 
-[Example](tests/main.cpp)
+[Example](example/main.cpp)
 
-![example_log](./tests/example_log.png)
+![example_log](./example/example_log.png)
 
+## Integration 
+
+### Add source 
 To use Logger within your software project include the Logger source into your project
 
 Source:
 * logger.h/cpp - logger and base stuff
 * logdefdest.h/cpp - default destinations for console and file 
 * log_base.h - macro for simple use logger
-* logstream.h - log stream, it can be used to add output operator for your types, (see [src/logstream.h](src/logstream.h))
+* logstream.h - log stream, it can be used to add output operator for your types
 * funcinfo.h - macros for parsing signatures
 
-or include `logger.cmake` in the cmake project
+or include `logger.cmake` in the cmake project (see [example/CMakeLists.txt](example/CMakeLists.txt))
 
-It is also recommended to add your `log.h` file to your project (see [tests/log.h](tests/log.h))
+### Add aliases 
+Recommended add own aliases to use logger stuff (type, level, color and etc)
+See example:
+* [logger.h](example/logger.h)
+* [logstream.h](example/logstream.h)
+* [log.h](example/log.h)
 
    
 ## ChangeLog
