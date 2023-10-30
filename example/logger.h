@@ -1,8 +1,8 @@
 #ifndef EXAMPLE_LOGGER_H
 #define EXAMPLE_LOGGER_H
 
-#include "../src/logger.h" // kors
-#include "../src/logdefdest.h" // kors
+#include "../logger/logger.h" // kors
+#include "../logger/logdefdest.h" // kors
 
 namespace app::logger {
 using Logger = kors::logger::Logger;

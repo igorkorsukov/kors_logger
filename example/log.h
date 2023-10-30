@@ -1,7 +1,7 @@
 #ifndef EXAMPLE_LOG_H
 #define EXAMPLE_LOG_H
 
-#include "../src/log_base.h" // kors
+#include "../logger/log_base.h" // kors
 #include "logger.h" // example
 
 // custom macros

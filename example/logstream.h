@@ -1,7 +1,7 @@
 #ifndef EXAMPLE_LOGSTREAM_H
 #define EXAMPLE_LOGSTREAM_H
 
-#include "../src/logstream.h" // kors
+#include "../logger/logstream.h" // kors
 
 namespace app::logger {
 using Stream = kors::logger::Stream;
